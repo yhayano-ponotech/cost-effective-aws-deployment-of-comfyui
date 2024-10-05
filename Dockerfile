@@ -14,10 +14,9 @@ RUN apt-get update && apt-get install -y \
     && git lfs install
 
 # Create and switch to a new user
-RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
+USER sagemaker-user
+ENV HOME=/home/sagemaker-user \
+    PATH=/home/sagemaker-user/.local/bin:$PATH
 
 # Pyenv and Python setup
 RUN curl https://pyenv.run | bash
@@ -29,13 +28,13 @@ RUN pyenv install $PYTHON_VERSION && \
     pip install --no-cache-dir --upgrade pip setuptools wheel 
 
 # Set the working directory
-WORKDIR /home/user/opt/ComfyUI
+WORKDIR /home/sagemaker-user/opt/ComfyUI
 
 # Clone ComfyUI directly into /home/user/opt/ComfyUI
 RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI .
 
 # Create a Python virtual environment in a directory
-ENV TEMP_VENV_PATH=/home/user/opt/ComfyUI/.venv
+ENV TEMP_VENV_PATH=/home/sagemaker-user/opt/ComfyUI/.venv
 RUN python -m venv $TEMP_VENV_PATH
 
 RUN . $TEMP_VENV_PATH/bin/activate && pip install xformers!=0.0.18 --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121
@@ -49,4 +48,4 @@ RUN mkdir -p custom_nodes/ComfyUI-Manager && \
 # Copy the configuration file
 COPY comfyui_config/extra_model_paths.yaml ./extra_model_paths.yaml
 
-CMD ["bash", "-c", "source /home/user/opt/ComfyUI/.venv/bin/activate && exec python /home/user/opt/ComfyUI/main.py --listen 0.0.0.0 --port 8181 --output-directory /home/user/opt/ComfyUI/output/"]
+CMD ["bash", "-c", "source /home/sagemaker-user/opt/ComfyUI/.venv/bin/activate && exec python /home/sagemaker-user/opt/ComfyUI/main.py --listen 0.0.0.0 --port 8181 --output-directory /home/sagemaker-user/opt/ComfyUI/output/"]
