@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y \
     && git lfs install
 
 # Create and switch to a new user
-USER sagemaker-user
 ENV HOME=/home/sagemaker-user \
     PATH=/home/sagemaker-user/.local/bin:$PATH
 
